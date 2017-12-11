@@ -1,6 +1,7 @@
 package ru.project.cscm.base.security;
 
 import java.util.Collection;
+import java.util.Set;
 
 import org.springframework.security.core.GrantedAuthority;
 
@@ -43,7 +44,7 @@ public interface HasAuthenticationAccess<T> extends IdentifiableObject<T> {
 	 * Возвращает признак активности объекта (фактически, возможность
 	 * авторизации объекта в системе).
 	 * 
-	 * @return {@code true} - если объекта может авторизовываться в системе,
+	 * @return {@code true} - если объект может авторизовываться в системе,
 	 *         {@code false} - иначе.
 	 */
 	boolean isActive();

@@ -12,15 +12,20 @@ public enum AppRole {
 	/**
 	 * Пользователь
 	 */
-	USER,
+	ROLE_CLIENT,
+	
+	/**
+	 * Доверенный пользователь
+	 */
+	ROLE_TRUSTED_CLIENT,
 
 	/**
 	 * Администратор
 	 */
-	ADMIN,
+	ROLE_ADMIN,
 
 	/**
 	 * Аналитик
 	 */
-	ANALYST;
+	ROLE_ANALYST;
 }

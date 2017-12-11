@@ -1,13 +1,19 @@
 package ru.project.cscm.base.security.rest;
 
+import java.util.Arrays;
+import java.util.Collection;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
+
+import ru.project.cscm.base.Properties;
 
 /**
  * Перехватчик запросов к приложению для проверки наличия данных об авторизации
@@ -22,6 +28,9 @@ import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 @Component
 public class RequestInterceptor extends HandlerInterceptorAdapter {
 
+	@Autowired
+	private Properties props;
+
 	@Override
 	public boolean preHandle(final HttpServletRequest request, final HttpServletResponse response, final Object handler)
 			throws Exception {
@@ -31,7 +40,14 @@ public class RequestInterceptor extends HandlerInterceptorAdapter {
 		}
 
 		if (!HttpScheme.isHttps(request.getScheme())) {
-			throw new HttpClientErrorException(HttpStatus.BAD_REQUEST);
+			throw new HttpClientErrorException(HttpStatus.GONE);
+		}
+
+		final String userAgent = request.getHeader("User-Agent");
+		final Collection<String> allowedAgents = Arrays
+				.asList(StringUtils.tokenizeToStringArray(props.getProperty("server.included.user-agents"), ",;"));
+		if (StringUtils.isEmpty(userAgent) || !allowedAgents.contains(userAgent)) {
+			throw new HttpClientErrorException(HttpStatus.GONE);
 		}
 
 		return super.preHandle(request, response, handler);

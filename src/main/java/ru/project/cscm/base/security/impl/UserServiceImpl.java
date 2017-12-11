@@ -6,7 +6,7 @@ import java.util.Set;
 import javax.validation.constraints.NotNull;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.authentication.encoding.PlaintextPasswordEncoder;
 import org.springframework.stereotype.Repository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -29,7 +29,7 @@ public class UserServiceImpl implements UserService {
 	private UserRepository userRepository;
 
 	@Autowired
-	private BCryptPasswordEncoder bCryptPasswordEncoder;
+	private PlaintextPasswordEncoder shaPasswordEncoder;
 
 	@Override
 	@NotNull
@@ -51,7 +51,7 @@ public class UserServiceImpl implements UserService {
 		}
 
 		final CscmUser curUser = getUserByUsername(id);
-		final String encodedPassword = bCryptPasswordEncoder.encode(password);
+		final String encodedPassword = shaPasswordEncoder.encodePassword(password, null);
 		final CscmUser user;
 		if (curUser == null) {
 			user = new CscmUser(id, encodedPassword, roles);

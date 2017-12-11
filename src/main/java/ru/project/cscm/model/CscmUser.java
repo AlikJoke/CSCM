@@ -34,7 +34,7 @@ import ru.project.cscm.base.security.HasAuthenticationAccess;
 @NamedQueries({ @NamedQuery(name = "findUserById", query = CscmUser.NamedQueries.FIND_USER_BY_ID) })
 public class CscmUser extends BaseIdentifiableObject<String> implements HasAuthenticationAccess<String> {
 
-	@ElementCollection(fetch = FetchType.LAZY)
+	@ElementCollection(fetch = FetchType.EAGER)
 	@CollectionTable(name = "user_roles", indexes = {
 			@Index(name = "idx_user_id", columnList = "cscm_user_id"),
 			@Index(name = "idx_user_id", columnList = "cscm_user_id, roles", unique = true)
