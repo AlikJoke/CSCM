@@ -1,7 +1,6 @@
 package ru.project.cscm.base.security;
 
 import java.util.Collection;
-import java.util.Set;
 
 import org.springframework.security.core.GrantedAuthority;
 

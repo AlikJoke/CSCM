@@ -16,7 +16,7 @@ import ru.project.cscm.base.security.Security;
 public class SecurityImpl implements Security {
 
 	static final String PATH_LOGIN = "/CSCM/login";
-	static final String PATH_LOGOUT = "/CSCM/logout";
+	static final String PATH_LOGOUT = "/exit";
 
 	@Autowired
 	private AuthenticationManager authenticationManager;
