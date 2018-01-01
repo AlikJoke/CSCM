@@ -6,6 +6,9 @@ import org.springframework.security.oauth2.config.annotation.web.configuration.E
 import org.springframework.security.oauth2.config.annotation.web.configuration.ResourceServerConfigurerAdapter;
 import org.springframework.security.oauth2.config.annotation.web.configurers.ResourceServerSecurityConfigurer;
 import org.springframework.security.oauth2.provider.error.OAuth2AccessDeniedHandler;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+
+import ru.project.cscm.base.rest.OptionsCorsFilter;
 
 @Configuration
 @EnableResourceServer
@@ -20,9 +23,9 @@ public class ResourceServerConfiguration extends ResourceServerConfigurerAdapter
 
 	@Override
 	public void configure(HttpSecurity http) throws Exception {
-		http.anonymous().disable().csrf().disable().requiresChannel().requestMatchers().requiresSecure()
+		http.addFilterBefore(new OptionsCorsFilter(), UsernamePasswordAuthenticationFilter.class).anonymous().disable().csrf().disable().requiresChannel().requestMatchers().requiresSecure()
 				.antMatchers("/CSCM/**").requiresSecure().and().authorizeRequests().antMatchers("/CSCM/**")
-				.authenticated().and().exceptionHandling().accessDeniedHandler(new OAuth2AccessDeniedHandler());
+				.authenticated().and().exceptionHandling().accessDeniedHandler(new OAuth2AccessDeniedHandler()).and().cors();
 	}
 
 }

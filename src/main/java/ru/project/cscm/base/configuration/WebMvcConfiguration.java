@@ -18,7 +18,7 @@ public class WebMvcConfiguration extends WebMvcConfigurerAdapter {
 	@Autowired
 	private RequestInterceptor requestInterceptor;
 
-	@Value("${allowedOrigins}")
+	@Value("${server.cors.allowed.origins}")
 	private String allowedOrigins;
 
 	@Override
@@ -29,11 +29,9 @@ public class WebMvcConfiguration extends WebMvcConfigurerAdapter {
 
 	@Override
 	public void addCorsMappings(CorsRegistry registry) {
-		super.addCorsMappings(registry);
-		registry.addMapping("/**")
-				.allowedMethods("POST", "GET", "PUT", "OPTIONS")
-				.allowedOrigins(
-						StringUtils.tokenizeToStringArray(allowedOrigins, ",;"));
+		registry.addMapping("/**").allowedOrigins(StringUtils.tokenizeToStringArray(allowedOrigins, ",;"))
+				.allowedMethods("OPTIONS", "POST", "GET", "PUT", "DELETE", "HEAD");
 	}
 
+	
 }

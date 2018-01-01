@@ -22,6 +22,9 @@ import org.springframework.security.oauth2.provider.request.DefaultOAuth2Request
 import org.springframework.security.oauth2.provider.token.DefaultTokenServices;
 import org.springframework.security.oauth2.provider.token.TokenStore;
 import org.springframework.security.oauth2.provider.token.store.InMemoryTokenStore;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+
+import ru.project.cscm.base.rest.OptionsCorsFilter;
 
 @Configuration
 @EnableWebSecurity
@@ -31,7 +34,7 @@ public class OAuth2SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
 	@Autowired
 	private ClientDetailsService clientDetailsService;
-	
+
 	@Autowired
 	private UserDetailsService userDetailsService;
 
@@ -39,7 +42,7 @@ public class OAuth2SecurityConfiguration extends WebSecurityConfigurerAdapter {
 	public PlaintextPasswordEncoder passwordEncoder() {
 		return new PlaintextPasswordEncoder();
 	}
-	
+
 	@Autowired
 	public void globalUserDetails(AuthenticationManagerBuilder auth) throws Exception {
 		auth.userDetailsService(userDetailsService).passwordEncoder(passwordEncoder());
@@ -47,8 +50,8 @@ public class OAuth2SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
-		http.cors().and().csrf().disable().anonymous().disable().requiresChannel().and().authorizeRequests()
-				.antMatchers("/oauth/token").permitAll();
+		http.addFilterBefore(new OptionsCorsFilter(), UsernamePasswordAuthenticationFilter.class).csrf().disable().anonymous()
+				.disable().requiresChannel().and().authorizeRequests().antMatchers("/oauth/token").permitAll();
 	}
 
 	@Override
@@ -61,14 +64,14 @@ public class OAuth2SecurityConfiguration extends WebSecurityConfigurerAdapter {
 	public TokenStore tokenStore() {
 		return new InMemoryTokenStore();
 	}
-	
+
 	@Bean
 	@Primary
 	public DefaultTokenServices tokenServices() {
-	    DefaultTokenServices defaultTokenServices = new DefaultTokenServices();
-	    defaultTokenServices.setTokenStore(tokenStore());
-	    defaultTokenServices.setSupportRefreshToken(true);
-	    return defaultTokenServices;
+		DefaultTokenServices defaultTokenServices = new DefaultTokenServices();
+		defaultTokenServices.setTokenStore(tokenStore());
+		defaultTokenServices.setSupportRefreshToken(true);
+		return defaultTokenServices;
 	}
 
 	@Bean

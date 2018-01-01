@@ -37,22 +37,24 @@ public class RequestInterceptor extends HandlerInterceptorAdapter {
 	@Override
 	public boolean preHandle(final HttpServletRequest request, final HttpServletResponse response, final Object handler)
 			throws Exception {
-		final String authHeader = request.getHeader("Authorization");
-		final Optional<Cookie> authCookie = Arrays.stream(Optional.ofNullable(request.getCookies()).orElse(new Cookie[0]))
-				.filter(cookie -> "CscmAuth".equals(cookie.getName())).findFirst();
-		if (StringUtils.isEmpty(authHeader) && !authCookie.isPresent()) {
-			throw new HttpClientErrorException(HttpStatus.UNAUTHORIZED);
-		}
+		if (!"OPTIONS".equalsIgnoreCase(request.getMethod())) {
+			final String authHeader = request.getHeader("Authorization");
+			final Optional<Cookie> authCookie = Arrays.stream(Optional.ofNullable(request.getCookies()).orElse(new Cookie[0]))
+					.filter(cookie -> "CscmAuth".equals(cookie.getName())).findFirst();
+			if (StringUtils.isEmpty(authHeader) && !authCookie.isPresent()) {
+				throw new HttpClientErrorException(HttpStatus.UNAUTHORIZED);
+			}
 
-		if (!HttpScheme.isHttps(request.getScheme())) {
-			throw new HttpClientErrorException(HttpStatus.GONE);
-		}
+			if (!HttpScheme.isHttps(request.getScheme())) {
+				throw new HttpClientErrorException(HttpStatus.GONE);
+			}
 
-		final String userAgent = request.getHeader("User-Agent");
-		final Collection<String> allowedAgents = Arrays
-				.asList(StringUtils.tokenizeToStringArray(props.getProperty("server.included.user-agents"), ",;"));
-		if (StringUtils.isEmpty(userAgent) || !allowedAgents.contains(userAgent)) {
-			throw new HttpClientErrorException(HttpStatus.GONE);
+			final String userAgent = request.getHeader("User-Agent");
+			final Collection<String> allowedAgents = Arrays
+					.asList(StringUtils.tokenizeToStringArray(props.getProperty("server.included.user-agents"), ",;"));
+			if (StringUtils.isEmpty(userAgent) || !allowedAgents.contains(userAgent)) {
+				throw new HttpClientErrorException(HttpStatus.GONE);
+			}
 		}
 
 		return super.preHandle(request, response, handler);
