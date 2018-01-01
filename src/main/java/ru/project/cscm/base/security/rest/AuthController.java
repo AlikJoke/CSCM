@@ -2,12 +2,13 @@ package ru.project.cscm.base.security.rest;
 
 import java.io.UnsupportedEncodingException;
 
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.postgresql.util.Base64;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.crypto.codec.Base64;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -26,15 +27,18 @@ public class AuthController extends ControllerWithExceptionHandler {
 
 	@GetMapping(value = SecurityImpl.PATH_LOGIN)
 	@ResponseStatus(HttpStatus.OK)
-	public void login(final HttpServletRequest request) throws UnsupportedEncodingException {
+	public void login(final HttpServletRequest request, final HttpServletResponse response) throws UnsupportedEncodingException {
 		final String authHeader = request.getHeader("Authorization");
 		final String[] parts = authHeader.split(" ");
 		if (parts.length != 2) {
 			throw new HttpClientErrorException(HttpStatus.BAD_REQUEST);
 		}
 
-		final String args = new String(Base64.decode(parts[1]), "UTF-8");
+		final String args = new String(Base64.decode(parts[1].getBytes("UTF-8")));
 		final String[] authParams = args.split(":");
+		
+		final Cookie cookie = new Cookie("CscmAuth", authHeader);
+		response.addCookie(cookie);
 
 		security.login(authParams[0], authParams[1]);
 	}

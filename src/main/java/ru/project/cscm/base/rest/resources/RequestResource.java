@@ -10,7 +10,6 @@ import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.google.common.base.Function;
 
 @JsonAutoDetect(fieldVisibility = Visibility.ANY)
 public class RequestResource {
@@ -63,7 +62,7 @@ public class RequestResource {
 
 	public RequestResource(final Request request) {
 		this.id = request.getId();
-		this.filter = FilterRequestResource.filterRequestToResource.apply(request.getFilter());
+		this.filter = Conversion.filterRequestToJsonResource.apply(request.getFilter());
 		this.descx = request.getDescx();
 		this.requestDate = request.getRequestDate();
 		this.isSended = request.isSended();
@@ -79,16 +78,6 @@ public class RequestResource {
 		this.requestDate = requestDate;
 		this.isSended = isSended;
 	}
-
-	@JsonIgnore
-	public static final Function<Request, RequestResource> requestToResource = new Function<Request, RequestResource>() {
-
-		@Override
-		public RequestResource apply(Request input) {
-			return input == null ? null : new RequestResource(input);
-		}
-
-	};
 	
 	@JsonIgnore
 	public Request getRequestObject() {

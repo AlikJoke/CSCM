@@ -11,23 +11,24 @@ import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
-import javax.persistence.Index;
+import javax.persistence.JoinColumn;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.PrePersist;
 import javax.persistence.PreUpdate;
 import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.NotNull;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
-import com.google.common.base.Function;
-import com.google.common.collect.Collections2;
-
 import ru.project.cscm.base.NotNullOrEmpty;
 import ru.project.cscm.base.security.AppRole;
 import ru.project.cscm.base.security.HasAuthenticationAccess;
+
+import com.google.common.base.Function;
+import com.google.common.collect.Collections2;
 
 @Entity
 @Table(name = "users")
@@ -35,9 +36,10 @@ import ru.project.cscm.base.security.HasAuthenticationAccess;
 public class CscmUser extends BaseIdentifiableObject<String> implements HasAuthenticationAccess<String> {
 
 	@ElementCollection(fetch = FetchType.EAGER)
-	@CollectionTable(name = "user_roles", indexes = {
-			@Index(name = "idx_user_id", columnList = "cscm_user_id"),
-			@Index(name = "idx_user_id", columnList = "cscm_user_id, roles", unique = true)
+	@CollectionTable(name = "user_roles", uniqueConstraints = {
+			@UniqueConstraint(name = "idx_user_id", columnNames = { "cscm_user_id", "roles" })
+	},  joinColumns = { 
+			@JoinColumn(name = "cscm_user_id", referencedColumnName = "id")
 	})
 	@Enumerated(EnumType.STRING)
 	private Set<AppRole> roles;

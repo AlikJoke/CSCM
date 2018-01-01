@@ -1,7 +1,6 @@
 package ru.project.cscm.base.rest;
 
 import java.util.Collection;
-import java.util.Date;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -20,10 +19,10 @@ import org.springframework.web.client.HttpClientErrorException;
 
 import ru.project.cscm.base.FilterRequestService;
 import ru.project.cscm.base.RequestService;
-import ru.project.cscm.base.rest.resources.RequestResource;
+import ru.project.cscm.base.rest.resources.Conversion;
 import ru.project.cscm.model.Request;
+import ru.project.cscm.rest.protos.RequestProto;
 
-import com.google.common.base.Predicate;
 import com.google.common.collect.Collections2;
 
 @RestController
@@ -37,46 +36,32 @@ public class RequestController extends ControllerWithExceptionHandler {
 	@Autowired
 	private FilterRequestService filterDao;
 	
-	private static final Predicate<Request> filterByDate = new Predicate<Request>() {
-
-		@Override
-		public boolean apply(Request input) {
-			return new Date().before(input.getRequestDate());
-		}
-	};
-	
 	@GetMapping(value = PATH)
 	@ResponseStatus(HttpStatus.OK)
-	public Collection<RequestResource> doGet() {
-		return Collections2.transform(Collections2.filter(
-				requestDao.getRequests(), filterByDate), RequestResource.requestToResource);
+	public Collection<RequestProto> doGet() {
+		return Collections2.transform(requestDao.getActualRequests(), Conversion.requestToProtoResource);
 	}
 	
 	@GetMapping(value = PATH + "/{filterId}")
 	@ResponseStatus(HttpStatus.OK)
-	public Collection<RequestResource> doGet(@PathVariable("filterId") final Integer filterId) {
-		return Collections2.transform(Collections2.filter(
-				Collections2.filter(requestDao.getRequests(), new Predicate<Request>() {
-
-					@Override
-					public boolean apply(Request input) {
-						return input.getFilter().getId() == filterId;
-					}
-					
-				}), filterByDate), RequestResource.requestToResource);
+	public Collection<RequestProto> doGet(@PathVariable("filterId") final Integer filterId) {
+		return Collections2.transform(requestDao.getActualRequestsByFilter(filterId), 
+				Conversion.requestToProtoResource);
 	}
 	
 	@PostMapping(value = PATH)
 	@ResponseStatus(HttpStatus.CREATED)
-	public RequestResource doPost(@RequestBody RequestResource request) {
-		requestDao.save(request.getRequestObject());
-		return RequestResource.requestToResource.apply(requestDao.getRequest(request.getId()));
+	public RequestProto doPost(@RequestBody RequestProto request) {
+		final Request requestToSave = Conversion.requestProtoToRequest.apply(request);
+		requestToSave.setFilter(filterDao.getFilter(request.getFilter().getId()));
+		requestDao.save(requestToSave);
+		return Conversion.requestToProtoResource.apply(requestDao.getRequest(request.getId()));
 	}
 	
 	@RequestMapping(value = PATH + "/{id}", method = RequestMethod.PUT)
 	@ResponseStatus(HttpStatus.OK)
-	public RequestResource doPut(@RequestBody RequestResource request, @PathVariable("id") final Integer requestId) {
-		final Request req = request.getRequestObject();
+	public RequestProto doPut(@RequestBody RequestProto request, @PathVariable("id") final Integer requestId) {
+		final Request req = Conversion.requestProtoToRequest.apply(request);
 		final Request existingReq = requestDao.getRequest(requestId);
 		if (existingReq == null) {
 			throw new HttpClientErrorException(HttpStatus.NOT_FOUND);
@@ -86,7 +71,7 @@ public class RequestController extends ControllerWithExceptionHandler {
 		existingReq.setFilter(filterDao.getFilter(req.getFilter().getId()));
 		existingReq.setSended(req.isSended());
 		requestDao.update(existingReq);
-		return RequestResource.requestToResource.apply(req);
+		return Conversion.requestToProtoResource.apply(req);
 	}
 	
 	@RequestMapping(value = PATH + "/{id}", method = RequestMethod.DELETE)

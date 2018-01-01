@@ -1,7 +1,10 @@
 package ru.project.cscm.base.configuration;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.util.StringUtils;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
@@ -12,12 +15,25 @@ import ru.project.cscm.base.security.rest.RequestInterceptor;
 @EnableWebMvc
 public class WebMvcConfiguration extends WebMvcConfigurerAdapter {
 
-  @Autowired 
-  private RequestInterceptor requestInterceptor;
+	@Autowired
+	private RequestInterceptor requestInterceptor;
 
-  @Override
-  public void addInterceptors(final InterceptorRegistry registry) {
-    super.addInterceptors(registry);
-    registry.addInterceptor(requestInterceptor);
-  }
+	@Value("${allowedOrigins}")
+	private String allowedOrigins;
+
+	@Override
+	public void addInterceptors(final InterceptorRegistry registry) {
+		super.addInterceptors(registry);
+		registry.addInterceptor(requestInterceptor);
+	}
+
+	@Override
+	public void addCorsMappings(CorsRegistry registry) {
+		super.addCorsMappings(registry);
+		registry.addMapping("/**")
+				.allowedMethods("POST", "GET", "PUT", "OPTIONS")
+				.allowedOrigins(
+						StringUtils.tokenizeToStringArray(allowedOrigins, ",;"));
+	}
+
 }

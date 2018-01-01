@@ -15,7 +15,8 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import ru.project.cscm.base.FilterRequestService;
-import ru.project.cscm.base.rest.resources.FilterRequestResource;
+import ru.project.cscm.base.rest.resources.Conversion;
+import ru.project.cscm.rest.protos.RequestFilterProto;
 
 import com.google.common.collect.Collections2;
 
@@ -29,14 +30,14 @@ public class FilterRequestController extends ControllerWithExceptionHandler {
 	
 	@GetMapping(value = PATH)
 	@ResponseStatus(HttpStatus.OK)
-	public Collection<FilterRequestResource> doGet() {
-		return Collections2.transform(filterService.getFilters(), FilterRequestResource.filterRequestToResource);
+	public Collection<RequestFilterProto> doGet() {
+		return Collections2.transform(filterService.getFilters(), Conversion.filterRequestToProtoResource);
 	}
 	
 	@GetMapping(value = PATH + "/{id}")
 	@ResponseStatus(HttpStatus.OK)
-	public FilterRequestResource doGet(@PathVariable("id") final String id) {
-		return FilterRequestResource.filterRequestToResource.apply(filterService.getFilter(Integer.valueOf(id)));
+	public RequestFilterProto doGet(@PathVariable("id") final String id) {
+		return Conversion.filterRequestToProtoResource.apply(filterService.getFilter(Integer.valueOf(id)));
 	}
 
 	@RequestMapping(value = { PATH, PATH + "/{id}" }, method = RequestMethod.OPTIONS)

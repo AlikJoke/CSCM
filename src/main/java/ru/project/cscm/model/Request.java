@@ -10,6 +10,8 @@ import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
+import javax.persistence.NamedQueries;
+import javax.persistence.NamedQuery;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
@@ -17,8 +19,14 @@ import javax.validation.constraints.NotNull;
 
 import ru.project.cscm.base.NotNullOrEmpty;
 
-@Entity
+@Entity(name = "request")
 @Table(name = "requests")
+@NamedQueries({
+	@NamedQuery(name = "find.all", query = "SELECT e FROM request e"),
+	@NamedQuery(name = "find.actuals", query = "SELECT e FROM request e WHERE current_date <= e.requestDate"),
+	@NamedQuery(name = "find.actuals.by.filter", query = "SELECT e FROM request e WHERE "
+			+ "current_date <= e.requestDate AND e.filter.id = :filterId")
+})
 public class Request extends BaseIdentifiableObject<Integer> {
 
 	@Column(name = "descx")
@@ -33,14 +41,14 @@ public class Request extends BaseIdentifiableObject<Integer> {
 	@Temporal(TemporalType.DATE)
 	@Column(name = "request_date", nullable = false)
 	private Date requestDate;
-	
+
 	@Column(name = "is_sended", nullable = false)
 	private boolean isSended;
 	
 	public void setId(Integer id) {
 		this.id = id;
 	}
-	
+
 	public boolean isSended() {
 		return isSended;
 	}
@@ -80,13 +88,13 @@ public class Request extends BaseIdentifiableObject<Integer> {
 		this.descx = descx;
 	}
 
-	public Request(@NotNullOrEmpty final Integer id, @NotNullOrEmpty final FilterRequest filter, 
+	public Request(final Integer id, @NotNullOrEmpty final FilterRequest filter, 
 			final String descx, final Date requestDate, final boolean isSended) {
 		super(id);
 		this.filter = filter;
 		this.descx = descx;
 		this.requestDate = requestDate;
-		this.isSended = isSended;
+		//this.isSended = isSended;
 	}
 
 	protected Request() {

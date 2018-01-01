@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+package model;
+
+option java_package = "ru.project.cscm.rest.protos";
+option java_outer_classname = "CscmProto";
+
+option java_multiple_files = true;
+
+message RequestProto {
+    int32 id = 1;
+    RequestFilterProto filter = 2;
+    string descx = 3;
+ 	bool isSended = 4;
+ 	int64 requestDate = 5;
+}
+
+message RequestFilterProto {
+    int32 id = 1;
+    string filterValue = 2;
+}

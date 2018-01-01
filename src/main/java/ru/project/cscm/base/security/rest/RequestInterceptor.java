@@ -2,7 +2,9 @@ package ru.project.cscm.base.security.rest;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Optional;
 
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -14,6 +16,7 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 
 import ru.project.cscm.base.Properties;
+
 
 /**
  * Перехватчик запросов к приложению для проверки наличия данных об авторизации
@@ -35,7 +38,9 @@ public class RequestInterceptor extends HandlerInterceptorAdapter {
 	public boolean preHandle(final HttpServletRequest request, final HttpServletResponse response, final Object handler)
 			throws Exception {
 		final String authHeader = request.getHeader("Authorization");
-		if (StringUtils.isEmpty(authHeader)) {
+		final Optional<Cookie> authCookie = Arrays.stream(Optional.ofNullable(request.getCookies()).orElse(new Cookie[0]))
+				.filter(cookie -> "CscmAuth".equals(cookie.getName())).findFirst();
+		if (StringUtils.isEmpty(authHeader) && !authCookie.isPresent()) {
 			throw new HttpClientErrorException(HttpStatus.UNAUTHORIZED);
 		}
 

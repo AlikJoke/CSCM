@@ -13,13 +13,13 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
-import com.google.common.collect.ImmutableList;
-
 import ru.project.cscm.base.NotNullOrEmpty;
 import ru.project.cscm.base.UserRepository;
 import ru.project.cscm.base.UserService;
 import ru.project.cscm.base.security.AppRole;
 import ru.project.cscm.model.CscmUser;
+
+import com.google.common.collect.ImmutableList;
 
 @Service
 @Repository

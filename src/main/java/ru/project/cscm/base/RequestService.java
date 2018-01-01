@@ -17,4 +17,8 @@ public interface RequestService {
 	void remove(Request request);
 	
 	void remove(Integer id);
+	
+	Collection<Request> getActualRequestsByFilter(Integer filterId);
+	
+	Collection<Request> getActualRequests();
 }
